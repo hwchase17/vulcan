@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
+import { Toolkit, ToolkitSelector } from "./ToolkitSelector";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -79,6 +80,11 @@ export function Thread() {
   );
   const [input, setInput] = useState("");
   const [firstTokenReceived, setFirstTokenReceived] = useState(false);
+  const [selectedToolkits, setSelectedToolkits] = useState<Toolkit[]>(() => {
+    // Load from localStorage on initial render
+    const savedToolkits = localStorage.getItem("selectedToolkits");
+    return savedToolkits ? JSON.parse(savedToolkits) : [];
+  });
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const stream = useStreamContext();
@@ -86,6 +92,11 @@ export function Thread() {
   const isLoading = stream.isLoading;
 
   const lastError = useRef<string | undefined>(undefined);
+
+  // Save selected toolkits to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("selectedToolkits", JSON.stringify(selectedToolkits));
+  }, [selectedToolkits]);
 
   useEffect(() => {
     if (!stream.error) {
@@ -153,6 +164,9 @@ export function Thread() {
             newHumanMessage,
           ],
         }),
+        config: selectedToolkits.length > 0 
+          ? { configurable: { tools: selectedToolkits } } 
+          : undefined,
       },
     );
 
@@ -320,11 +334,21 @@ export function Thread() {
             footer={
               <div className="sticky flex flex-col items-center gap-8 bottom-0 px-4 bg-white">
                 {!chatStarted && (
-                  <div className="flex gap-3 items-center">
-                    <LangGraphLogoSVG className="flex-shrink-0 h-8" />
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                      Agent Chat
-                    </h1>
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="flex gap-3 items-center">
+                      <LangGraphLogoSVG className="flex-shrink-0 h-8" />
+                      <h1 className="text-2xl font-semibold tracking-tight">
+                        Agent Chat
+                      </h1>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm text-muted-foreground mr-2">Select available toolkits:</div>
+                      <ToolkitSelector
+                        selectedToolkits={selectedToolkits}
+                        onChange={setSelectedToolkits}
+                        disabled={isLoading}
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -351,7 +375,7 @@ export function Thread() {
                     />
 
                     <div className="flex items-center justify-between p-2 pt-4">
-                      <div>
+                      <div className="flex items-center gap-4">
                         <div className="flex items-center space-x-2">
                           <Switch
                             id="render-tool-calls"
@@ -365,6 +389,14 @@ export function Thread() {
                             Hide Tool Calls
                           </Label>
                         </div>
+                        
+                        {chatStarted && (
+                          <ToolkitSelector
+                            selectedToolkits={selectedToolkits}
+                            onChange={setSelectedToolkits}
+                            disabled={isLoading}
+                          />
+                        )}
                       </div>
                       {stream.isLoading ? (
                         <Button key="stop" onClick={() => stream.stop()}>

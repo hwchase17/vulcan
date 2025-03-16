@@ -1,6 +1,5 @@
 import { validate } from "uuid";
 import { Thread } from "@langchain/langgraph-sdk";
-import { useQueryParam, StringParam } from "use-query-params";
 import { useUser } from "@/contexts/UserContext";
 import {
   createContext,

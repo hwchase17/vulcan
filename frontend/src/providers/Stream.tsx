@@ -15,7 +15,17 @@ import { useUser } from "@/contexts/UserContext";
 import { useThreads } from "./Thread";
 import { useNavigate } from "react-router-dom";
 
-export type StateType = { messages: Message[]; ui?: UIMessage[] };
+export type StateType = { 
+  messages: Message[]; 
+  ui?: UIMessage[];
+  values?: {
+    config?: {
+      configurable?: {
+        tools?: any[];
+      };
+    };
+  };
+};
 
 const useTypedStream = useStream<
   StateType,

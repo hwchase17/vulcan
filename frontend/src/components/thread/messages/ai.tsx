@@ -12,6 +12,8 @@ import { Fragment } from "react/jsx-runtime";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ThreadView } from "../agent-inbox";
 import { BooleanParam, useQueryParam } from "use-query-params";
+import { ToolkitBadges } from "../ToolkitSelector";
+import { LangGraphLogoSVG } from "../../icons/langgraph";
 
 function CustomComponent({
   message,
@@ -82,6 +84,8 @@ export function AssistantMessage({
   const meta = thread.getMessagesMetadata(message);
   const interrupt = thread.interrupt;
   const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint;
+  const config = meta?.firstSeenState?.values ? (meta.firstSeenState.values as any).config : undefined;
+  const toolkits = config?.configurable?.tools || [];
   const anthropicStreamedToolCalls = Array.isArray(message.content)
     ? parseAnthropicStreamedToolCalls(message.content)
     : undefined;
@@ -103,54 +107,73 @@ export function AssistantMessage({
   }
 
   return (
-    <div className="flex items-start mr-auto gap-2 group">
-      {isToolResult ? (
-        <ToolResult message={message} />
-      ) : (
-        <div className="flex flex-col gap-2">
-          {contentString.length > 0 && (
-            <div className="py-1">
-              <MarkdownText>{contentString}</MarkdownText>
-            </div>
-          )}
-
-          {!hideToolCalls && (
-            <>
-              {(hasToolCalls && toolCallsHaveContents && (
-                <ToolCalls toolCalls={message.tool_calls} />
-              )) ||
-                (hasAnthropicToolCalls && (
-                  <ToolCalls toolCalls={anthropicStreamedToolCalls} />
-                )) ||
-                (hasToolCalls && <ToolCalls toolCalls={message.tool_calls} />)}
-            </>
-          )}
-
-          <CustomComponent message={message} thread={thread} />
-          {isAgentInboxInterruptSchema(interrupt?.value) && isLastMessage && (
-            <ThreadView interrupt={interrupt.value[0]} />
-          )}
-          <div
-            className={cn(
-              "flex gap-2 items-center mr-auto transition-opacity",
-              "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
-            )}
-          >
-            <BranchSwitcher
-              branch={meta?.branch}
-              branchOptions={meta?.branchOptions}
-              onSelect={(branch) => thread.setBranch(branch)}
-              isLoading={isLoading}
-            />
-            <CommandBar
-              content={contentString}
-              isLoading={isLoading}
-              isAiMessage={true}
-              handleRegenerate={() => handleRegenerate(parentCheckpoint)}
-            />
-          </div>
-        </div>
+    <div
+      className={cn(
+        "flex flex-col gap-2 px-4 py-3 rounded-lg bg-gray-50 relative",
+        isLoading && "animate-pulse",
       )}
+    >
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          <LangGraphLogoSVG width={24} height={24} />
+          <span className="font-medium">Agent</span>
+        </div>
+        {toolkits.length > 0 && (
+          <div className="ml-2">
+            <ToolkitBadges toolkits={toolkits} />
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-start mr-auto gap-2 group">
+        {isToolResult ? (
+          <ToolResult message={message} />
+        ) : (
+          <div className="flex flex-col gap-2">
+            {contentString.length > 0 && (
+              <div className="py-1">
+                <MarkdownText>{contentString}</MarkdownText>
+              </div>
+            )}
+
+            {!hideToolCalls && (
+              <>
+                {(hasToolCalls && toolCallsHaveContents && (
+                  <ToolCalls toolCalls={message.tool_calls} />
+                )) ||
+                  (hasAnthropicToolCalls && (
+                    <ToolCalls toolCalls={anthropicStreamedToolCalls} />
+                  )) ||
+                  (hasToolCalls && <ToolCalls toolCalls={message.tool_calls} />)}
+              </>
+            )}
+
+            <CustomComponent message={message} thread={thread} />
+            {isAgentInboxInterruptSchema(interrupt?.value) && isLastMessage && (
+              <ThreadView interrupt={interrupt.value[0]} />
+            )}
+            <div
+              className={cn(
+                "flex gap-2 items-center mr-auto transition-opacity",
+                "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
+              )}
+            >
+              <BranchSwitcher
+                branch={meta?.branch}
+                branchOptions={meta?.branchOptions}
+                onSelect={(branch) => thread.setBranch(branch)}
+                isLoading={isLoading}
+              />
+              <CommandBar
+                content={contentString}
+                isLoading={isLoading}
+                isAiMessage={true}
+                handleRegenerate={() => handleRegenerate(parentCheckpoint)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
