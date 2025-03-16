@@ -5,7 +5,11 @@ import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
 import { useState, FormEvent } from "react";
 import { Button } from "../ui/button";
-import { Checkpoint, Message } from "@langchain/langgraph-sdk";
+import {
+  Checkpoint,
+  Message,
+  Thread as ThreadType,
+} from "@langchain/langgraph-sdk";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
 import {
@@ -68,6 +72,34 @@ function ScrollToBottom(props: { className?: string }) {
   );
 }
 
+interface FixedThread extends ThreadType {
+  config?: {
+    configurable?: {
+      tools?: Toolkit[];
+    };
+  };
+}
+
+function useThread(
+  client: ReturnType<typeof useStreamContext>["client"],
+  threadId: string | null | undefined,
+): FixedThread | null {
+  const [thread, setThread] = useState<Awaited<
+    ReturnType<typeof client.threads.get>
+  > | null>(null);
+  useEffect(() => {
+    if (threadId) {
+      client.threads
+        .get(threadId)
+        .then(setThread)
+        .catch((error) => {
+          console.error("[StreamSession] Error fetching thread:", error);
+        });
+    }
+  }, [client, threadId]);
+  return thread as FixedThread | null;
+}
+
 export function Thread() {
   const [threadId, setThreadId] = useQueryParam("threadId", StringParam);
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryParam(
@@ -88,6 +120,12 @@ export function Thread() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const stream = useStreamContext();
+  const thread = useThread(stream.client, threadId);
+  useEffect(() => {
+    if (thread?.config?.configurable?.tools) {
+      setSelectedToolkits(thread.config.configurable.tools);
+    }
+  }, [thread]);
   const messages = stream.messages;
   const isLoading = stream.isLoading;
 
@@ -164,9 +202,10 @@ export function Thread() {
             newHumanMessage,
           ],
         }),
-        config: selectedToolkits.length > 0 
-          ? { configurable: { tools: selectedToolkits } } 
-          : undefined,
+        config:
+          selectedToolkits.length > 0
+            ? { configurable: { tools: selectedToolkits } }
+            : undefined,
       },
     );
 
@@ -342,7 +381,9 @@ export function Thread() {
                       </h1>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="text-sm text-muted-foreground mr-2">Select available toolkits:</div>
+                      <div className="text-sm text-muted-foreground mr-2">
+                        Select available toolkits:
+                      </div>
                       <ToolkitSelector
                         selectedToolkits={selectedToolkits}
                         onChange={setSelectedToolkits}
@@ -389,7 +430,7 @@ export function Thread() {
                             Hide Tool Calls
                           </Label>
                         </div>
-                        
+
                         {chatStarted && (
                           <ToolkitSelector
                             selectedToolkits={selectedToolkits}
