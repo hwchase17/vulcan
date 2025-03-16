@@ -17,7 +17,7 @@
   "dependencies": {
     "@assistant-ui/react": "^0.8.0",
     "@assistant-ui/react-markdown": "^0.8.0",
-    "@assistant-ui/react-syntax-highlighter": "^0.7.2",
+    "@assistant-ui/react-syntax-highlighter": "^0.8.0",
     "@langchain/core": "^0.3.41",
     "@langchain/langgraph": "^0.2.54",
     "@langchain/langgraph-api": "^0.0.15",
