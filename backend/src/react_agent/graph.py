@@ -13,6 +13,8 @@ import json
 
 from react_agent.utils import load_chat_model
 from react_agent.prompts import SYSTEM_PROMPT
+from react_agent.utils import get_formatted_times
+
 
 client = Oxp(
     bearer_token=os.environ.get("OXP_BEARER_TOKEN"),  # This is the default and can be omitted
@@ -102,6 +104,65 @@ for tool_id in tool_ids:
             func=create_tool_caller(tool_id),
         )
     )
+
+service_methods = {
+    "X": [
+        "X.DeleteTweetById",
+        "X.LookupSingleUserByUsername",
+        "X.LookupTweetById",
+        "X.PostTweet",
+        "X.SearchRecentTweetsByKeywords",
+        "X.SearchRecentTweetsByUsername"
+    ],
+    "Github": [
+        "Github.CountStargazers",
+        "Github.CreateIssue",
+        "Github.CreateIssueComment",
+        "Github.CreateReplyForReviewComment",
+        "Github.CreateReviewComment",
+        "Github.GetPullRequest",
+        "Github.GetRepository",
+        "Github.ListOrgRepositories",
+        "Github.ListPullRequestCommits",
+        "Github.ListPullRequests",
+        "Github.ListRepositoryActivities",
+        "Github.ListReviewCommentsInARepository",
+        "Github.ListReviewCommentsOnPullRequest",
+        "Github.ListStargazers",
+        "Github.SetStarred",
+        "Github.UpdatePullRequest"
+    ],
+    "Google": [
+        "Google.ChangeEmailLabels",
+        "Google.CreateContact",
+        "Google.CreateEvent",
+        "Google.CreateLabel",
+        "Google.DeleteDraftEmail",
+        "Google.DeleteEvent",
+        "Google.GetThread",
+        "Google.ListDraftEmails",
+        "Google.ListEmails",
+        "Google.ListEmailsByHeader",
+        "Google.ListEvents",
+        "Google.ListLabels",
+        "Google.ListThreads",
+        "Google.ReplyToEmail",
+        "Google.SearchContactsByEmail",
+        "Google.SearchContactsByName",
+        "Google.SearchThreads",
+        "Google.SendDraftEmail",
+        "Google.SendEmail",
+        "Google.TrashEmail",
+        "Google.UpdateDraftEmail",
+        "Google.UpdateEvent",
+        "Google.WriteDraftEmail",
+        "Google.WriteDraftReplyEmail"
+    ],
+    "Linkedin": [
+        "Linkedin.CreateTextPost"
+    ]
+}
+
 async def make_graph(config: RunnableConfig) -> CompiledStateGraph:
     """Create a custom state graph for the Reasoning and Action agent."""
     # Initialize the model with tool binding. Change the model or add more tools here.
@@ -109,9 +170,13 @@ async def make_graph(config: RunnableConfig) -> CompiledStateGraph:
 
     # Format the system prompt. Customize this to change the agent's behavior.
     prompt = SYSTEM_PROMPT.format(
-        system_time=datetime.now(tz=UTC).isoformat()
+        current_times=get_formatted_times()
     )
-    tool_node = ToolNode(tools=tools)
+    allowed_tool_names = set()
+    for t_type in config['configurable'].get('tools', []):
+        allowed_tool_names.update(service_methods[t_type])
+    allowed_tools = [t for t in tools if t.name in allowed_tool_names]
+    tool_node = ToolNode(tools=allowed_tools)
 
     graph = create_react_agent(
         model, tools=tool_node, prompt=prompt
