@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { Check, Github, Mail, MessageSquare, Settings, Twitter, Linkedin } from "lucide-react";
+import { Check, Github, Mail, Settings, Twitter, Linkedin } from "lucide-react";
 import { Badge } from "../ui/badge";
 
 export type Toolkit = "github" | "gmail" | "x" | "linkedin";

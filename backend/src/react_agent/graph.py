@@ -107,61 +107,61 @@ for tool_id in tool_ids:
 
 service_methods = {
     "x": [
-        "X.DeleteTweetById",
-        "X.LookupSingleUserByUsername",
-        "X.LookupTweetById",
-        "X.PostTweet",
-        "X.SearchRecentTweetsByKeywords",
-        "X.SearchRecentTweetsByUsername"
+        "X_DeleteTweetById",
+        "X_LookupSingleUserByUsername",
+        "X_LookupTweetById",
+        "X_PostTweet",
+        "X_SearchRecentTweetsByKeywords",
+        "X_SearchRecentTweetsByUsername"
     ],
     "github": [
-        "Github.CountStargazers",
-        "Github.CreateIssue",
-        "Github.CreateIssueComment",
-        "Github.CreateReplyForReviewComment",
-        "Github.CreateReviewComment",
-        "Github.GetPullRequest",
-        "Github.GetRepository",
-        "Github.ListOrgRepositories",
-        "Github.ListPullRequestCommits",
-        "Github.ListPullRequests",
-        "Github.ListRepositoryActivities",
-        "Github.ListReviewCommentsInARepository",
-        "Github.ListReviewCommentsOnPullRequest",
-        "Github.ListStargazers",
-        "Github.SetStarred",
-        "Github.UpdatePullRequest"
+        "Github_CountStargazers",
+        "Github_CreateIssue",
+        "Github_CreateIssueComment",
+        "Github_CreateReplyForReviewComment",
+        "Github_CreateReviewComment",
+        "Github_GetPullRequest",
+        "Github_GetRepository",
+        "Github_ListOrgRepositories",
+        "Github_ListPullRequestCommits",
+        "Github_ListPullRequests",
+        "Github_ListRepositoryActivities",
+        "Github_ListReviewCommentsInARepository",
+        "Github_ListReviewCommentsOnPullRequest",
+        "Github_ListStargazers",
+        "Github_SetStarred",
+        "Github_UpdatePullRequest"
     ],
     "gmail": [
-        "Google.ListDraftEmails",
-        "Google.ListEmails",
-        "Google.ReplyToEmail",
-        "Google.SendEmail",
-        "Google.SendDraftEmail",
-        "Google.WriteDraftEmail",
-        "Google.WriteDraftReplyEmail"
+        "Google_ListDraftEmails",
+        "Google_ListEmails",
+        "Google_ReplyToEmail",
+        "Google_SendEmail",
+        "Google_SendDraftEmail",
+        "Google_WriteDraftEmail",
+        "Google_WriteDraftReplyEmail"
     ],
     "google": [
-        "Google.ChangeEmailLabels",
-        "Google.CreateContact",
-        "Google.CreateEvent",
-        "Google.CreateLabel",
-        "Google.DeleteDraftEmail",
-        "Google.DeleteEvent",
-        "Google.GetThread",
-        "Google.ListEmailsByHeader",
-        "Google.ListEvents",
-        "Google.ListLabels",
-        "Google.ListThreads",
-        "Google.SearchContactsByEmail",
-        "Google.SearchContactsByName",
-        "Google.SearchThreads",
-        "Google.TrashEmail",
-        "Google.UpdateDraftEmail",
-        "Google.UpdateEvent",
+        "Google_ChangeEmailLabels",
+        "Google_CreateContact",
+        "Google_CreateEvent",
+        "Google_CreateLabel",
+        "Google_DeleteDraftEmail",
+        "Google_DeleteEvent",
+        "Google_GetThread",
+        "Google_ListEmailsByHeader",
+        "Google_ListEvents",
+        "Google_ListLabels",
+        "Google_ListThreads",
+        "Google_SearchContactsByEmail",
+        "Google_SearchContactsByName",
+        "Google_SearchThreads",
+        "Google_TrashEmail",
+        "Google_UpdateDraftEmail",
+        "Google_UpdateEvent",
     ],
     "linkedin": [
-        "Linkedin.CreateTextPost"
+        "Linkedin_CreateTextPost"
     ]
 }
 
@@ -174,9 +174,8 @@ async def make_graph(config: RunnableConfig) -> CompiledStateGraph:
     prompt = SYSTEM_PROMPT.format(
         current_times=get_formatted_times()
     )
-    print(config)
     allowed_tool_names = set()
-    for t_type in config['configurable'].get('tools', []):
+    for t_type in config.get('configurable', {}).get('tools', []):
         allowed_tool_names.update(service_methods[t_type])
     allowed_tools = [t for t in tools if t.name in allowed_tool_names]
     tool_node = ToolNode(tools=allowed_tools)
