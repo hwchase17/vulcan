@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { Check, Github, Mail, MessageSquare, Settings } from "lucide-react";
+import { Check, Github, Mail, MessageSquare, Settings, Twitter, Linkedin } from "lucide-react";
 import { Badge } from "../ui/badge";
 
-export type Toolkit = "github" | "slack" | "gmail" | "linear";
+export type Toolkit = "github" | "gmail" | "x" | "linkedin";
 
 export interface ToolkitSelectorProps {
   selectedToolkits: Toolkit[];
@@ -20,16 +20,16 @@ export function ToolkitSelector({ selectedToolkits, onChange, disabled = false }
 
   const toolkits: { id: Toolkit; name: string; icon: React.ReactNode; description: string }[] = [
     { 
+      id: "x", 
+      name: "X", 
+      icon: <Twitter className="h-4 w-4" />,
+      description: "Access and post to X (formerly Twitter)"
+    },
+    { 
       id: "github", 
       name: "Github", 
       icon: <Github className="h-4 w-4" />,
       description: "Access repositories, issues, and pull requests"
-    },
-    { 
-      id: "slack", 
-      name: "Slack", 
-      icon: <MessageSquare className="h-4 w-4" />,
-      description: "Send and read messages from Slack channels"
     },
     { 
       id: "gmail", 
@@ -38,12 +38,10 @@ export function ToolkitSelector({ selectedToolkits, onChange, disabled = false }
       description: "Read and send emails through Gmail"
     },
     { 
-      id: "linear", 
-      name: "Linear", 
-      icon: <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2 12C2 6.47715 6.47715 2 12 2V12H22C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12Z" fill="currentColor" />
-      </svg>,
-      description: "Manage issues and projects in Linear"
+      id: "linkedin", 
+      name: "LinkedIn", 
+      icon: <Linkedin className="h-4 w-4" />,
+      description: "Access and post to LinkedIn professional network"
     },
   ];
 
@@ -154,12 +152,10 @@ export function ToolkitBadges({ toolkits }: { toolkits: Toolkit[] }) {
   if (toolkits.length === 0) return null;
 
   const toolkitIcons: Record<Toolkit, React.ReactNode> = {
+    x: <Twitter className="h-3 w-3 mr-1" />,
     github: <Github className="h-3 w-3 mr-1" />,
-    slack: <MessageSquare className="h-3 w-3 mr-1" />,
     gmail: <Mail className="h-3 w-3 mr-1" />,
-    linear: <svg className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M2 12C2 6.47715 6.47715 2 12 2V12H22C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12Z" fill="currentColor" />
-    </svg>
+    linkedin: <Linkedin className="h-3 w-3 mr-1" />
   };
 
   return (

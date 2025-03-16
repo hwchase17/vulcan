@@ -106,7 +106,7 @@ for tool_id in tool_ids:
     )
 
 service_methods = {
-    "X": [
+    "x": [
         "X.DeleteTweetById",
         "X.LookupSingleUserByUsername",
         "X.LookupTweetById",
@@ -114,7 +114,7 @@ service_methods = {
         "X.SearchRecentTweetsByKeywords",
         "X.SearchRecentTweetsByUsername"
     ],
-    "Github": [
+    "github": [
         "Github.CountStargazers",
         "Github.CreateIssue",
         "Github.CreateIssueComment",
@@ -132,7 +132,16 @@ service_methods = {
         "Github.SetStarred",
         "Github.UpdatePullRequest"
     ],
-    "Google": [
+    "gmail": [
+        "Google.ListDraftEmails",
+        "Google.ListEmails",
+        "Google.ReplyToEmail",
+        "Google.SendEmail",
+        "Google.SendDraftEmail",
+        "Google.WriteDraftEmail",
+        "Google.WriteDraftReplyEmail"
+    ],
+    "google": [
         "Google.ChangeEmailLabels",
         "Google.CreateContact",
         "Google.CreateEvent",
@@ -140,25 +149,18 @@ service_methods = {
         "Google.DeleteDraftEmail",
         "Google.DeleteEvent",
         "Google.GetThread",
-        "Google.ListDraftEmails",
-        "Google.ListEmails",
         "Google.ListEmailsByHeader",
         "Google.ListEvents",
         "Google.ListLabels",
         "Google.ListThreads",
-        "Google.ReplyToEmail",
         "Google.SearchContactsByEmail",
         "Google.SearchContactsByName",
         "Google.SearchThreads",
-        "Google.SendDraftEmail",
-        "Google.SendEmail",
         "Google.TrashEmail",
         "Google.UpdateDraftEmail",
         "Google.UpdateEvent",
-        "Google.WriteDraftEmail",
-        "Google.WriteDraftReplyEmail"
     ],
-    "Linkedin": [
+    "linkedin": [
         "Linkedin.CreateTextPost"
     ]
 }
@@ -172,6 +174,7 @@ async def make_graph(config: RunnableConfig) -> CompiledStateGraph:
     prompt = SYSTEM_PROMPT.format(
         current_times=get_formatted_times()
     )
+    print(config)
     allowed_tool_names = set()
     for t_type in config['configurable'].get('tools', []):
         allowed_tool_names.update(service_methods[t_type])
