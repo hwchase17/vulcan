@@ -1,0 +1,10 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "agent": "./src/react_agent/graph.py:make_graph"
+  },
+  "auth": {
+    "path": "./src/react_agent/auth.py:auth"
+  },
+  "env": ".env"
+}
